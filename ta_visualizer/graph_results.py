@@ -27,22 +27,20 @@ def prepare_asset_data(ddf, agg_interval):
 
 
 def prepare_filled_orders_data(ddf):
-    cols = ["buy_or_sell", "order_type", "price", "quantity", "oco_id", "executed_at"]
-    ddf = ddf[cols].copy()
-    ddf.executed_at = pd.to_datetime(ddf.executed_at)
-    return ddf
+    cols = ["order_type", "trade_price", "quantity", "date_time"]
+    return ddf[cols].copy()
 
 
 def get_opening_range(ddf):
     opening_range = ddf.between_time(
-        "07:30:00", "07:31:00"
+        "13:30:00", "13:31:00"
     )  # TODO, make this work with/without DST
     high, low = opening_range.close.max(), opening_range.close.min()
     return (high, low)
 
 
 def get_opening_range_last_ts(ddf):
-    return ddf.between_time("07:30:00", "07:31:00").index.values[-1]
+    return ddf.between_time("13:30:00", "13:31:00").index.values[-1]
 
 
 def only_rth_data(ddf):
@@ -50,10 +48,10 @@ def only_rth_data(ddf):
 
 
 def dot_annotation_for_order(order_row):
-    if order_row.buy_or_sell == "BUY":
+    if order_row.quantity > 0:
         # return "go"
         return "bo"
-    if order_row.buy_or_sell == "SELL":
+    if order_row.quantity < 0:
         return "ro"
 
 
@@ -83,12 +81,12 @@ def plot_filled_orders(date, ddf, ddf_filled_orders, observations_ddf):
 
     ax1.axvline(x=get_opening_range_last_ts(ddf), color="r", lw=0.6)
 
-    if ddf_filled_orders:
+    if ddf_filled_orders is not None:        
         for i, order_row in ddf_filled_orders.iterrows():
             annotation = dot_annotation_for_order(order_row)
-            ax1.plot(order_row.executed_at, order_row.price, annotation)
+            ax1.plot(order_row.name, order_row.trade_price, annotation)
 
-    if observations_ddf:
+    if observations_ddf is not None:
         for i, observation_row in observations_ddf.iterrows():
             ax1.axvline(x=observation_row.observed_at, color="g", lw=0.6)
 
@@ -98,10 +96,10 @@ def plot_filled_orders(date, ddf, ddf_filled_orders, observations_ddf):
 def generate_plot(
     date: datetime.date,
     raw_asset_price_by_date: pd.DataFrame,
-    # raw_filled_orders_by_date: pd.DataFrame,
-    # observations_df: pd.DataFrame,
+    raw_filled_orders_by_date: pd.DataFrame = None,
+    observations_df: pd.DataFrame = None,
 ):
     interval = "1min"
     asset_prices = prepare_asset_data(raw_asset_price_by_date, interval)
-    # filled_orders = prepare_filled_orders_data(raw_filled_orders_by_date)
-    plot_filled_orders(date, asset_prices, None, None)
+    filled_orders = prepare_filled_orders_data(raw_filled_orders_by_date)
+    plot_filled_orders(date, asset_prices, raw_filled_orders_by_date, observations_df)
