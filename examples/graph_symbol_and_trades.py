@@ -10,7 +10,7 @@ from ta_visualizer import graph_results
 
 symbol = "/MES"
 symbol_technical = "MES"
-sd = datetime.date(2020, 9, 18)
+sd = datetime.date(2020, 9, 22)
 ed = sd
 
 engine = gen_engine()
@@ -45,7 +45,7 @@ def prepare_trade_df(ddf) -> pd.DataFrame:
     ddf.trade_date = pd.to_datetime(ddf.trade_date)
     ddf.date_time = pd.to_datetime(ddf.date_time)
     ddf.set_index("date_time", drop=False, inplace=True)
-    ddf = ddf.tz_localize('US/Eastern')
+    ddf = ddf.tz_localize("US/Eastern")
     ddf = ddf.tz_convert("UTC")
     ddf = ddf.sort_index()
     return ddf
