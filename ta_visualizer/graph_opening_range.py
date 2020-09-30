@@ -2,10 +2,12 @@ import datetime
 import pandas as pd
 import numpy as np
 import matplotlib
-
-matplotlib.use("agg")
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
+from typing import List
+
+
+matplotlib.use("agg")
 
 
 def condense_assset_df(ddf, agg_interval):
@@ -32,9 +34,7 @@ def prepare_asset_data(ddf, agg_interval):
 
 
 def get_opening_range(ddf):
-    opening_range = ddf.between_time(
-        "07:30:00", "07:30:30"
-    )
+    opening_range = ddf.between_time("07:30:00", "07:30:30")
     high, low = opening_range.close.max(), opening_range.close.min()
     return (high, low)
 
@@ -55,7 +55,7 @@ def dot_annotation_for_order(order_row):
         return "ro"
 
 
-def plot_filled_orders(date, ddf):
+def plot_filled_orders(date, ddf, additional_columns: List[str]):
     # plt.figure(figsize=(15, 8))
     # plt.grid(True)
     fig = plt.figure(figsize=(20, 15))
@@ -73,7 +73,9 @@ def plot_filled_orders(date, ddf):
     or_high, or_low = get_opening_range(ddf)
 
     ax1.plot(only_rth_data(ddf).close)
-    ax1.plot(only_rth_data(ddf).fast_sma)
+
+    for ac in additional_columns:
+        ax1.plot(only_rth_data(ddf)[ac])
 
     # OR high, low, & middle lines
     ax1.axhline(y=or_high, color="r", lw=0.8)
@@ -87,8 +89,9 @@ def plot_filled_orders(date, ddf):
 
 def generate_plot(
     date: datetime.date,
-    raw_asset_price_by_date: pd.DataFrame
+    raw_asset_price_by_date: pd.DataFrame,
+    additional_columns: List[str] = [],
 ):
     asset_prices = raw_asset_price_by_date
 
-    plot_filled_orders(date, asset_prices)
+    plot_filled_orders(date, asset_prices, additional_columns)

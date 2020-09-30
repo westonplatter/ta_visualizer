@@ -81,7 +81,7 @@ def plot_filled_orders(date, ddf, ddf_filled_orders, observations_ddf):
 
     ax1.axvline(x=get_opening_range_last_ts(ddf), color="r", lw=0.6)
 
-    if ddf_filled_orders is not None:        
+    if ddf_filled_orders is not None:
         for i, order_row in ddf_filled_orders.iterrows():
             annotation = dot_annotation_for_order(order_row)
             ax1.plot(order_row.name, order_row.trade_price, annotation)

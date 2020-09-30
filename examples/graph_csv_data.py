@@ -22,7 +22,9 @@ indicator_sma_cross.apply(df)
 
 
 min_datetime = datetime.date(2020, 6, 20)
-max_datetime = datetime.date(2020, 8, 20)
+max_datetime = datetime.date(2020, 6, 26)
+additional_columns = ["fast_sma"]
+
 
 
 for k, v in df.groupby("date"):
@@ -30,12 +32,9 @@ for k, v in df.groupby("date"):
 
     # Monday - Friday
     if dayofweek in [0, 1, 2, 3, 4]:
-        
+
         date = v.index.date[0]
 
         if date > min_datetime and date < max_datetime:
             print(f"{k} = {dayofweek}")
-            generate_plot(date, v)
-
-
-
+            generate_plot(date, v, additional_columns)
