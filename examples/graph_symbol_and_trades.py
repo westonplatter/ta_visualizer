@@ -10,7 +10,7 @@ from ta_visualizer import graph_results
 
 symbol = "/MES"
 symbol_technical = "MES"
-sd = datetime.date(2020, 9, 18)
+sd = datetime.date(2020, 9, 22)
 ed = sd
 
 engine = gen_engine()

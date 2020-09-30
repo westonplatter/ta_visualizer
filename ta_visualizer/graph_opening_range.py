@@ -2,10 +2,10 @@ import datetime
 import pandas as pd
 import numpy as np
 import matplotlib
-import matplotlib.pyplot as plt
-from matplotlib import gridspec
 
 matplotlib.use("agg")
+import matplotlib.pyplot as plt
+from matplotlib import gridspec
 
 
 def condense_assset_df(ddf, agg_interval):
@@ -16,8 +16,8 @@ def condense_assset_df(ddf, agg_interval):
         "close": "last",
         "volume": "sum",
         # "number_of_trades": "sum",
-        # "bid_volume": "sum",
-        # "ask_volume": "sum",
+        "bid_volume": "sum",
+        "ask_volume": "sum",
     }
     return ddf.resample(agg_interval).agg(agg_col_definition)
 
@@ -26,25 +26,25 @@ def prepare_asset_data(ddf, agg_interval):
     return condense_assset_df(ddf, agg_interval)
 
 
-def prepare_filled_orders_data(ddf):
-    cols = ["order_type", "trade_price", "quantity", "date_time"]
-    return ddf[cols].copy()
+# def prepare_filled_orders_data(ddf):
+#     cols = ["order_type", "trade_price", "quantity", "date_time"]
+#     return ddf[cols].copy()
 
 
 def get_opening_range(ddf):
     opening_range = ddf.between_time(
-        "13:30:00", "13:31:00"
-    )  # TODO, make this work with/without DST
+        "07:30:00", "07:30:30"
+    )
     high, low = opening_range.close.max(), opening_range.close.min()
     return (high, low)
 
 
 def get_opening_range_last_ts(ddf):
-    return ddf.between_time("13:30:00", "13:31:00").index.values[-1]
+    return ddf.between_time("07:30:00", "07:30:30").index.values[-1]
 
 
 def only_rth_data(ddf):
-    return ddf  # .between_time("08:30:00", "20:00:00")
+    return ddf.between_time("06:30:00", "15:00:00")
 
 
 def dot_annotation_for_order(order_row):
@@ -55,7 +55,7 @@ def dot_annotation_for_order(order_row):
         return "ro"
 
 
-def plot_filled_orders(date, ddf, ddf_filled_orders, observations_ddf):
+def plot_filled_orders(date, ddf):
     # plt.figure(figsize=(15, 8))
     # plt.grid(True)
     fig = plt.figure(figsize=(20, 15))
@@ -73,6 +73,7 @@ def plot_filled_orders(date, ddf, ddf_filled_orders, observations_ddf):
     or_high, or_low = get_opening_range(ddf)
 
     ax1.plot(only_rth_data(ddf).close)
+    ax1.plot(only_rth_data(ddf).fast_sma)
 
     # OR high, low, & middle lines
     ax1.axhline(y=or_high, color="r", lw=0.8)
@@ -81,25 +82,13 @@ def plot_filled_orders(date, ddf, ddf_filled_orders, observations_ddf):
 
     ax1.axvline(x=get_opening_range_last_ts(ddf), color="r", lw=0.6)
 
-    if ddf_filled_orders is not None:        
-        for i, order_row in ddf_filled_orders.iterrows():
-            annotation = dot_annotation_for_order(order_row)
-            ax1.plot(order_row.name, order_row.trade_price, annotation)
-
-    if observations_ddf is not None:
-        for i, observation_row in observations_ddf.iterrows():
-            ax1.axvline(x=observation_row.observed_at, color="g", lw=0.6)
-
     plt.savefig(f"chart_{date}.png")
 
 
 def generate_plot(
     date: datetime.date,
-    raw_asset_price_by_date: pd.DataFrame,
-    raw_filled_orders_by_date: pd.DataFrame = None,
-    observations_df: pd.DataFrame = None,
+    raw_asset_price_by_date: pd.DataFrame
 ):
-    interval = "1min"
-    asset_prices = prepare_asset_data(raw_asset_price_by_date, interval)
-    filled_orders = prepare_filled_orders_data(raw_filled_orders_by_date)
-    plot_filled_orders(date, asset_prices, raw_filled_orders_by_date, observations_df)
+    asset_prices = raw_asset_price_by_date
+
+    plot_filled_orders(date, asset_prices)
