@@ -55,7 +55,7 @@ def dot_annotation_for_order(order_row):
         return "ro"
 
 
-def plot_filled_orders(date, ddf, additional_columns: List[str]):
+def plot_filled_orders(date, ddf, additional_columns: List[str], additional_or_relative_levels: List[float]):
     # plt.figure(figsize=(15, 8))
     # plt.grid(True)
     fig = plt.figure(figsize=(20, 15))
@@ -70,19 +70,24 @@ def plot_filled_orders(date, ddf, additional_columns: List[str]):
     title = f"date = {date}"
     plt.title(title)
 
-    or_high, or_low = get_opening_range(ddf)
-
     ax1.plot(only_rth_data(ddf).close)
-
     for ac in additional_columns:
         ax1.plot(only_rth_data(ddf)[ac])
 
     # OR high, low, & middle lines
+    or_high, or_low = get_opening_range(ddf)
     ax1.axhline(y=or_high, color="r", lw=0.8)
     ax1.axhline(y=or_low, color="r", lw=0.8)
     ax1.axhline(y=((or_high + or_low)) / 2, color="b", lw=0.4)
-
     ax1.axvline(x=get_opening_range_last_ts(ddf), color="r", lw=0.6)
+
+    for level in additional_or_relative_levels:
+        if level > 0:
+            y = or_high + level
+            ax1.axhline(y=y, color="r", lw=0.6)
+        if level < 0:
+            y = or_low + level
+            ax1.axhline(y=y, color="r", lw=0.6)
 
     plt.savefig(f"chart_{date}.png")
 
@@ -91,7 +96,7 @@ def generate_plot(
     date: datetime.date,
     raw_asset_price_by_date: pd.DataFrame,
     additional_columns: List[str] = [],
+    additional_or_relative_levels: List[float] = []
 ):
     asset_prices = raw_asset_price_by_date
-
-    plot_filled_orders(date, asset_prices, additional_columns)
+    plot_filled_orders(date, asset_prices, additional_columns, additional_or_relative_levels)
