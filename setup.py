@@ -18,9 +18,9 @@ class PyTest(TestCommand):
         sys.exit(errno)
 
 
-version_contents = {}
-with open("fast_arrow/version.py", "r", encoding="utf-8") as f:
-    exec(f.read(), version_contents)
+# version_contents = {}
+# with open("fast_arrow/version.py", "r", encoding="utf-8") as f:
+    # exec(f.read(), version_contents)
 
 
 with open("README.md", "r") as f:
