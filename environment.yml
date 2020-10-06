@@ -12,11 +12,18 @@ dependencies:
     - requests
     - pytz
     - matplotlib
+    # dash apps resources
+    - dash
+    - dash-html-components
+    - dash-renderer
+    - dash-core-components
+    - plotly
     # test resources
     - pytest
     - pip
+    - black
     - pip:
-        - twine
+        - twine 
         - ipdb
         - loguru
         - "--editable ."
