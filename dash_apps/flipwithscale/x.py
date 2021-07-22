@@ -34,18 +34,33 @@ def normalize_columns(cols: List[str]) -> List[str]:
 
 
 def gen_results(df: pd.DataFrame, signals: pd.DataFrame, col: str) -> pd.DataFrame:
+    """[summary]
+
+    Args:
+        df (pd.DataFrame): raw data DF
+        signals (pd.DataFrame): signals data DF
+        col (str): col to get the price data from
+
+    Returns:
+        pd.DataFrame: [description]
+    """
+    # create new df to hold results
     result_df = pd.DataFrame(columns=["bars_after", "diff"])
 
+    # index in signals is the same as index in df
     for index, row in signals.iterrows():
         price = row[col]
-        # slipage = Decimal("0.02") # for the /MCL contract
-        # price_adjusted_commission = Decimal("0.74")/Decimal("100.0") # the /MCL contract
-        # execution_price = price + slipage + price_adjusted_commission
+
+        # TODO(weston) calculate theoretical execution prices
+        slipage_pts = 0.01  # 0.02 # for the /MCL contract
+        commission_pts = 0.01 * 2 * (0.74 / 1.0)  # the /MCL contract
+        execution_price = price + slipage_pts + commission_pts
 
         for rindex in range(0, 21):
             row = df.iloc[index + rindex]
-            diff = price - row[LAST]
+            diff = row[LAST] - price
             result_df.loc[len(result_df)] = [rindex, diff]
+            # TODO(weston) add additional columns for corrlation analysis
 
     return result_df
 
@@ -70,29 +85,37 @@ def gen_and_save_figure(results_df: pd.DataFrame, name: str) -> None:
     )
 
     # Tweak the visual presentation
-    ax.xaxis.grid(True)
-    ax.set(ylabel="")
-    sns.despine(trim=True, left=True)
 
+    # chart title
+    ax.set_title(name)
+
+    # x axis
+    ax.xaxis.grid(True)
+    plt.xticks(rotation=-90)
+    # add zero line
     ax.axhline(0, ls="--")
+
+    # y axis
+    ax.set(ylabel="Contract Points")
+    sns.despine(trim=True, left=True)
 
     f.savefig(f"{name}.png")
 
 
 def run():
-    filename = "data/CL-202109-NYMEX-lsc-exp-cl-002.txt"
+    filename = "data/CL-202109-lsc-exp-002.txt"
     df = pd.read_csv(filename, delimiter=",")
     df.columns = normalize_columns(df.columns)
 
-    folder = "dashapps/flipwithscale"
+    folder = "dash_apps/flipwithscale"
 
     buy_signals = df.query("buy_entry != 0.0")
     results_df = gen_results(df, buy_signals, "buy_entry")
     gen_and_save_figure(results_df, f"{folder}/buy")
 
-    # sell_signals = df.query("sell_entry != 0.0")
-    # results_df = gen_results(sell_signals, "sell_entry")
-    # gen_and_save_figure(results_df, "flipwithscale_sell")
+    sell_signals = df.query("sell_entry != 0.0")
+    results_df = gen_results(df, sell_signals, "sell_entry")
+    gen_and_save_figure(results_df, f"{folder}/sell")
 
 
 if __name__ == "__main__":
