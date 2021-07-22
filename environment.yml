@@ -12,6 +12,8 @@ dependencies:
     - requests
     - pytz
     - matplotlib
+    - seaborn
+    - jupyterlab
     # dash apps resources
     - dash
     - dash-html-components
@@ -27,4 +29,3 @@ dependencies:
         - ipdb
         - loguru
         - "--editable ."
-        - "--editable ../ta_scanner" # this has some overlapping dependencies

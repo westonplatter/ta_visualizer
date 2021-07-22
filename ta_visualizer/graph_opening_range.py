@@ -55,7 +55,9 @@ def dot_annotation_for_order(order_row):
         return "ro"
 
 
-def plot_filled_orders(date, ddf, additional_columns: List[str], additional_or_relative_levels: List[float]):
+def plot_filled_orders(
+    date, ddf, additional_columns: List[str], additional_or_relative_levels: List[float]
+):
     # plt.figure(figsize=(15, 8))
     # plt.grid(True)
     fig = plt.figure(figsize=(20, 15))
@@ -96,7 +98,9 @@ def generate_plot(
     date: datetime.date,
     raw_asset_price_by_date: pd.DataFrame,
     additional_columns: List[str] = [],
-    additional_or_relative_levels: List[float] = []
+    additional_or_relative_levels: List[float] = [],
 ):
     asset_prices = raw_asset_price_by_date
-    plot_filled_orders(date, asset_prices, additional_columns, additional_or_relative_levels)
+    plot_filled_orders(
+        date, asset_prices, additional_columns, additional_or_relative_levels
+    )
