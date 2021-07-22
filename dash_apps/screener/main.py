@@ -101,7 +101,11 @@ def gen_figure(df, number_bars, fast_ma, mid_ma, slow_ma):
     or_df = gen_or_df(df, number_bars)
     for name, xddf in or_df:
         fig.add_trace(
-            go.Scatter(x=xddf.index.to_pydatetime(), y=xddf.value, mode="lines", name=name), row=1, col=1
+            go.Scatter(
+                x=xddf.index.to_pydatetime(), y=xddf.value, mode="lines", name=name
+            ),
+            row=1,
+            col=1,
         )
 
     for f in [us_open, european_close, us_close]:
@@ -127,58 +131,64 @@ def gen_figure(df, number_bars, fast_ma, mid_ma, slow_ma):
         )
 
     fig.update_layout(
-        {'legend_orientation': "h"},
+        {"legend_orientation": "h"},
         legend=dict(y=1, x=0),
-        font=dict(color='black'), 
-        dragmode='pan', 
-        hovermode='y',
-        margin=dict(b=0, t=0, l=40, r=40)
+        font=dict(color="black"),
+        dragmode="pan",
+        hovermode="y",
+        margin=dict(b=0, t=0, l=40, r=40),
     )
 
     fig.update_yaxes(
-        showgrid=True, 
-        zeroline=True, 
+        showgrid=True,
+        zeroline=True,
         showticklabels=True,
-        showspikes=True, 
-        spikemode='across', 
-        spikesnap='cursor', 
-        showline=False, 
-        spikedash='solid',
+        showspikes=True,
+        spikemode="across",
+        spikesnap="cursor",
+        showline=False,
+        spikedash="solid",
         spikecolor="grey",
         spikethickness=1,
     )
 
     fig.update_xaxes(
-        showgrid=True, 
-        zeroline=False, 
-        rangeslider_visible=False, 
+        showgrid=True,
+        zeroline=False,
+        rangeslider_visible=False,
         showticklabels=True,
-        showspikes=True, 
-        spikemode='across', 
-        spikesnap='cursor',
-        showline=True, 
-        spikedash='solid',
+        showspikes=True,
+        spikemode="across",
+        spikesnap="cursor",
+        showline=True,
+        spikedash="solid",
         spikecolor="grey",
         spikethickness=1,
-        )
+    )
 
     fig.update_layout(hoverdistance=0)
 
-    fig.update_traces(xaxis='x', hoverinfo='none')
+    fig.update_traces(xaxis="x", hoverinfo="none")
 
     return fig
+
 
 inits = dict(date=datetime.date(2020, 9, 10), or_interval=2, smas=[10, 20, 60])
 states = dict(date=inits["date"], or_interval=inits["or_interval"], smas=inits["smas"])
 df = gen_df(states["date"])
-fig = gen_figure(df, states["or_interval"], states["smas"][0], states["smas"][1], states["smas"][2])
+fig = gen_figure(
+    df, states["or_interval"], states["smas"][0], states["smas"][1], states["smas"][2]
+)
 
 app = dash.Dash(__name__)
 
 
 app.layout = html.Div(
     [
-        html.Div([html.H1("TA strategy reviewe")], style={"textAlign": "center"}),
+        html.Div(
+            [html.H1("Moving Average Crossover Strategy")],
+            style={"textAlign": "center"},
+        ),
         # inputs
         html.Div(
             [
@@ -282,11 +292,7 @@ def callback_incrementers(increment_up, increment_down):
     ],
 )
 def update_output_div(
-    fast_ma,
-    mid_ma,
-    slow_ma,
-    or_interval,
-    date_str,
+    fast_ma, mid_ma, slow_ma, or_interval, date_str,
 ):
     date = datetime.datetime.strptime(date_str, "%Y-%m-%d").date()
 
